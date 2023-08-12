@@ -11,8 +11,6 @@ const protect = async (req, res, next) => {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     //get user id from token
     const user = await User.findById(verified.id);
-    console.log("token user");
-    console.log(user);
     if (!user) {
       return res.status(400).json({ msg: "user not found" });
     }

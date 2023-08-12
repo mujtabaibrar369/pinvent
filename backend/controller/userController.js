@@ -8,30 +8,36 @@ const generateToken = (id) => {
 };
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
-  if (password.length < 6) {
-    res.json({ msg: "Password must be greater than 6 characters" });
-  }
+  const existingUSer = await User.findOne({ email });
+  console.log(existingUSer);
+  if (existingUSer) {
+    res.json("This email is already registered!");
+  } else {
+    if (password.length < 6) {
+      res.json({ msg: "Password must be greater than 6 characters" });
+    }
 
-  try {
-    const user = await User.create({
-      name,
-      email,
-      password,
-    });
-    const token = generateToken(user._id);
-    res.cookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 86400), //1 day
-      sameSite: "none",
-      //secure: true,
-    });
-    res.status(201).json({
-      msg: "User Created",
-      token,
-    });
-  } catch (error) {
-    res.json({ err: error.message });
+    try {
+      const user = await User.create({
+        name,
+        email,
+        password,
+      });
+      const token = generateToken(user._id);
+      res.cookie("token", token, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 86400), //1 day
+        sameSite: "none",
+        //secure: true,
+      });
+      res.status(201).json({
+        msg: "User Created",
+        token,
+      });
+    } catch (error) {
+      res.json({ err: error.message });
+    }
   }
 };
 const loginUser = async (req, res) => {
